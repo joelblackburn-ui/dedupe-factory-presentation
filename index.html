@@ -706,7 +706,7 @@
                     <div class="agent-box">
                         <div class="number">1</div>
                         <div class="name">Candidate Generator</div>
-                        <div class="desc">Identifies potential duplicate pairs using blocking strategies</div>
+                        <div class="desc">Identifies potential duplicate pairs using targeted search strategies</div>
                     </div>
                     <div class="agent-box">
                         <div class="number">2</div>
@@ -827,15 +827,16 @@
                         </div>
                     </div>
                     <div>
-                        <h3>Blocking Strategy</h3>
-                        <p style="margin-bottom: 20px; font-size: 18px;">Reduces comparison space efficiently:</p>
+                        <h3>Search Strategy</h3>
+                        <p style="margin-bottom: 20px; font-size: 18px;">For each company, run targeted searches:</p>
                         <div class="card">
                             <ul>
-                                <li>Group by normalised domain root</li>
-                                <li>Group by name prefix (first 5 chars)</li>
-                                <li>Group by city + industry</li>
-                                <li>Group by LinkedIn company handle</li>
+                                <li>Search by domain → find matches</li>
+                                <li>Search by company name → find matches</li>
+                                <li>Search by LinkedIn URL → find matches</li>
+                                <li>Search by phone → find matches</li>
                             </ul>
+                            <p style="margin-top: 15px; font-size: 14px; color: var(--zinc-gray);">~5 searches per company × 40k = ~5.5 hours for full scan</p>
                         </div>
                     </div>
                 </div>
