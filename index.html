@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dedupe Factory | Zinc Work</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --zinc-pink: #F04DA9;
+            --zinc-dark: #131313;
+            --zinc-gray: #6C6C6C;
+            --zinc-blue: #0066FF;
+            --zinc-peach: #FFF5F0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--zinc-peach);
+            color: var(--zinc-dark);
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 60px 80px;
+            display: none;
+            flex-direction: column;
+            background: var(--zinc-peach);
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            font-size: 14px;
+            color: var(--zinc-gray);
+        }
+
+        .logo {
+            position: absolute;
+            top: 30px;
+            left: 40px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--zinc-blue);
+        }
+
+        h1 {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--zinc-dark);
+        }
+
+        h1 span {
+            color: var(--zinc-pink);
+        }
+
+        h2 {
+            font-size: 42px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            color: var(--zinc-dark);
+        }
+
+        h2 span {
+            color: var(--zinc-pink);
+        }
+
+        h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--zinc-blue);
+        }
+
+        p {
+            font-size: 24px;
+            line-height: 1.6;
+            color: var(--zinc-gray);
+        }
+
+        .subtitle {
+            font-size: 28px;
+            color: var(--zinc-gray);
+            margin-bottom: 40px;
+        }
+
+        .center {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            flex: 1;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .card.highlight {
+            border-color: var(--zinc-pink);
+            background: rgba(240,77,169,0.08);
+        }
+
+        .card h4 {
+            font-size: 18px;
+            color: var(--zinc-blue);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card p {
+            font-size: 16px;
+        }
+
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .agent-box {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .agent-box .number {
+            width: 36px;
+            height: 36px;
+            background: var(--zinc-pink);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .agent-box .name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--zinc-dark);
+            margin-bottom: 8px;
+        }
+
+        .agent-box .desc {
+            font-size: 12px;
+            color: var(--zinc-gray);
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 30px 0;
+        }
+
+        .flow-box {
+            background: #fff;
+            border: 2px solid var(--zinc-gray);
+            border-radius: 12px;
+            padding: 15px 25px;
+            text-align: center;
+            min-width: 120px;
+            color: var(--zinc-dark);
+            font-weight: 600;
+        }
+
+        .flow-box.active {
+            border-color: var(--zinc-pink);
+            background: rgba(240,77,169,0.15);
+        }
+
+        .flow-box.success {
+            border-color: var(--zinc-blue);
+            background: rgba(0,102,255,0.1);
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: var(--zinc-gray);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 20px;
+            background: rgba(240,77,169,0.15);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--zinc-dark);
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            font-size: 16px;
+            color: var(--zinc-gray);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.success {
+            background: rgba(0,102,255,0.15);
+            color: var(--zinc-blue);
+        }
+
+        .badge.danger {
+            background: rgba(255,100,100,0.2);
+            color: #ff6464;
+        }
+
+        .badge.warning {
+            background: rgba(255,200,100,0.2);
+            color: #cc8800;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--zinc-dark);
+        }
+
+        .checklist .check {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--zinc-blue);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--zinc-blue);
+        }
+
+        .slack-mockup {
+            background: #1a1d21;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 700px;
+            margin: 20px auto;
+        }
+
+        .slack-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .slack-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--zinc-pink);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .slack-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .slack-confidence {
+            margin-left: auto;
+            background: rgba(255,200,100,0.2);
+            color: #ffc864;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .slack-records {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .slack-record {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .slack-record h5 {
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .slack-record p {
+            font-size: 13px;
+            color: #aaa;
+            margin: 5px 0;
+        }
+
+        .slack-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .slack-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .slack-btn.primary {
+            background: var(--zinc-blue);
+            color: #fff;
+        }
+
+        .slack-btn.secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .nav-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: var(--zinc-gray);
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--zinc-pink);
+            transition: width 0.3s ease;
+        }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            padding: 10px 0;
+            font-size: 18px;
+            color: var(--zinc-dark);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        ul li::before {
+            content: "→";
+            color: var(--zinc-pink);
+            font-weight: bold;
+        }
+
+        .purpose-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 50px 60px;
+            max-width: 900px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .purpose-box p {
+            font-size: 28px;
+            line-height: 1.5;
+            color: var(--zinc-dark);
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .icon-item {
+            text-align: center;
+            padding: 25px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .icon-item .icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .icon-item h4 {
+            font-size: 16px;
+            color: var(--zinc-dark);
+            margin-bottom: 8px;
+        }
+
+        .icon-item p {
+            font-size: 14px;
+            color: var(--zinc-gray);
+        }
+
+        .threshold-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .threshold-card .score {
+            font-size: 36px;
+            font-weight: 700;
+            min-width: 120px;
+        }
+
+        .threshold-card .action {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--zinc-dark);
+        }
+
+        .threshold-card .desc {
+            font-size: 16px;
+            color: var(--zinc-gray);
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progress"></div>
+
+    <div class="presentation">
+        <!-- Slide 1: Purpose -->
+        <div class="slide active center">
+            <h1>Dedupe <span>Factory</span></h1>
+            <p class="subtitle">AI Agent Swarm for HubSpot Data Quality</p>
+
+            <div class="purpose-box">
+                <p>
+                    <strong>Goal:</strong> Design and build an intelligent system that automatically identifies, validates, and resolves duplicate company records in HubSpot — improving data quality, reporting accuracy, and sales efficiency.
+                </p>
+            </div>
+
+            <div class="logo">Zinc</div>
+            <div class="slide-number">1 / 12</div>
+        </div>
+
+        <!-- Slide 2: Data Inputs -->
+        <div class="slide">
+            <h2>Where Duplicates Come From: <span>Data Inputs</span></h2>
+            <div class="content-area">
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>Enrichment Tools</h4>
+                        <ul>
+                            <li>Cognism</li>
+                            <li>Goodfit</li>
+                            <li>Clay</li>
+                        </ul>
+                        <p style="margin-top: 15px; font-size: 14px;">Each tool may create records if no match found using their own matching logic</p>
+                    </div>
+                    <div class="card">
+                        <h4>Partner Data</h4>
+                        <ul>
+                            <li>Crossbeam overlaps</li>
+                            <li>Partner referrals</li>
+                            <li>Integration syncs</li>
+                        </ul>
+                        <p style="margin-top: 15px; font-size: 14px;">Partner data often uses different naming conventions</p>
+                    </div>
+                    <div class="card">
+                        <h4>Manual Entry</h4>
+                        <ul>
+                            <li>Sales rep creation</li>
+                            <li>Inbound lead forms</li>
+                            <li>Conference lists</li>
+                            <li>LinkedIn imports</li>
+                        </ul>
+                        <p style="margin-top: 15px; font-size: 14px;">No standardised process, inconsistent data quality</p>
+                    </div>
+                </div>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">2 / 12</div>
+        </div>
+
+        <!-- Slide 3: Update Gaps -->
+        <div class="slide">
+            <h2>Where Duplicates Come From: <span>Update Gaps</span></h2>
+            <div class="content-area">
+                <div class="two-col">
+                    <div>
+                        <div class="card" style="margin-bottom: 25px;">
+                            <h4>Missing / Non-Standardised Data</h4>
+                            <p style="font-size: 18px; margin-bottom: 15px;">Unable to find existing record → create new</p>
+                            <ul>
+                                <li>Domain missing or incorrect</li>
+                                <li>Name variations (Ltd vs Limited)</li>
+                                <li>No LinkedIn URL for matching</li>
+                                <li>Different regional formats</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="card" style="margin-bottom: 25px;">
+                            <h4>Corporate Changes</h4>
+                            <p style="font-size: 18px; margin-bottom: 15px;">Looks new but isn't</p>
+                            <ul>
+                                <li>Company rebrands (Camelot → Allwyn)</li>
+                                <li>Acquisitions & mergers</li>
+                                <li>Domain changes</li>
+                                <li>Subsidiary relationships</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card highlight" style="margin-top: 20px; text-align: center;">
+                    <p style="font-size: 20px; color: var(--zinc-dark);">
+                        <strong>Result:</strong> Same company exists multiple times → fragmented history, inaccurate reporting, wasted sales effort
+                    </p>
+                </div>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">3 / 12</div>
+        </div>
+
+        <!-- Slide 4: Why Agent Swarm -->
+        <div class="slide">
+            <h2>Why <span>Agent Swarm</span>?</h2>
+            <div class="content-area">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Approach</th>
+                            <th>How It Works</th>
+                            <th>Limitation</th>
+                            <th>Verdict</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Manual Cleanup</strong></td>
+                            <td>RevOps reviews one-by-one</td>
+                            <td>Doesn't scale with data volume</td>
+                            <td><span class="badge danger">Won't Scale</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Automation / Workflow</strong></td>
+                            <td>Rule-based matching & merging</td>
+                            <td>High control but doesn't self-improve; misses edge cases</td>
+                            <td><span class="badge warning">Limited</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agent Swarm</strong></td>
+                            <td>Specialised AI agents collaborate</td>
+                            <td>—</td>
+                            <td><span class="badge success">Recommended</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="icon-grid" style="margin-top: 30px;">
+                    <div class="icon-item">
+                        <div class="icon">🎯</div>
+                        <h4>Specialisation</h4>
+                        <p>Each agent masters one task</p>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon">🧠</div>
+                        <h4>Self-Improving</h4>
+                        <p>Learns from every human decision</p>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon">📋</div>
+                        <h4>Full Audit Trail</h4>
+                        <p>Every decision logged with rationale</p>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon">👤</div>
+                        <h4>Human-in-Loop</h4>
+                        <p>Uncertain cases → Slack review</p>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon">⚡</div>
+                        <h4>Handles Edge Cases</h4>
+                        <p>Rebrands, M&A, subsidiaries</p>
+                    </div>
+                    <div class="icon-item">
+                        <div class="icon">🔄</div>
+                        <h4>Fail-Safe</h4>
+                        <p>All actions reversible</p>
+                    </div>
+                </div>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">4 / 12</div>
+        </div>
+
+        <!-- Slide 5: The Agents -->
+        <div class="slide">
+            <h2>The <span>Agents</span></h2>
+            <div class="content-area">
+                <div class="agent-grid">
+                    <div class="agent-box">
+                        <div class="number">1</div>
+                        <div class="name">Candidate Generator</div>
+                        <div class="desc">Identifies potential duplicate pairs using blocking strategies</div>
+                    </div>
+                    <div class="agent-box">
+                        <div class="number">2</div>
+                        <div class="name">Enrichment Agent</div>
+                        <div class="desc">Researches companies via web scraping, search, LinkedIn</div>
+                    </div>
+                    <div class="agent-box">
+                        <div class="number">3</div>
+                        <div class="name">Parent/Child Detector</div>
+                        <div class="desc">Identifies subsidiaries, acquisitions, corporate hierarchies</div>
+                    </div>
+                    <div class="agent-box">
+                        <div class="number">4</div>
+                        <div class="name">Matcher / Scorer</div>
+                        <div class="desc">Calculates confidence scores using multiple signals</div>
+                    </div>
+                    <div class="agent-box">
+                        <div class="number">5</div>
+                        <div class="name">Validator</div>
+                        <div class="desc">Checks another agent's assessment, re-runs with new context</div>
+                    </div>
+                    <div class="agent-box">
+                        <div class="number">6</div>
+                        <div class="name">Auditor</div>
+                        <div class="desc">Maintains complete audit trail and learning corpus</div>
+                    </div>
+                    <div class="agent-box">
+                        <div class="number">7</div>
+                        <div class="name">Slack Notifier</div>
+                        <div class="desc">Routes uncertain records to human reviewers</div>
+                    </div>
+                    <div class="agent-box">
+                        <div class="number">8</div>
+                        <div class="name">Merger</div>
+                        <div class="desc">Executes merge after approval, manages rollback</div>
+                    </div>
+                    <div class="agent-box">
+                        <div class="number">9</div>
+                        <div class="name">Sync Agents</div>
+                        <div class="desc">Updates Gong, Outreach, and other integrations post-merge</div>
+                    </div>
+                </div>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">5 / 12</div>
+        </div>
+
+        <!-- Slide 6: The Process -->
+        <div class="slide">
+            <h2>The <span>Process</span></h2>
+            <div class="content-area" style="align-items: center;">
+                <div class="flow-diagram">
+                    <div class="flow-box">Generate<br>Candidates</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Enrich<br>Data</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Score<br>Match</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box active">Validate<br>& Review</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box success">Execute<br>Merge</div>
+                </div>
+
+                <div class="two-col" style="margin-top: 30px; max-width: 1000px;">
+                    <div class="card">
+                        <h4>Iterative Validation</h4>
+                        <ul>
+                            <li>One agent checks another's assessment</li>
+                            <li>Re-runs prior steps with new context if needed</li>
+                            <li>Requests additional enrichment when uncertain</li>
+                            <li>Escalates to human review when appropriate</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Cross-System Sync</h4>
+                        <ul>
+                            <li>Updates Gong call associations</li>
+                            <li>Syncs Outreach account references</li>
+                            <li>Maintains local database integrity</li>
+                            <li>Logs all changes for rollback</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">6 / 12</div>
+        </div>
+
+        <!-- Slide 7: How Matching Works - Basic -->
+        <div class="slide">
+            <h2>How Matching Works: <span>Foundation</span></h2>
+            <div class="content-area">
+                <div class="two-col">
+                    <div>
+                        <h3>Code-Based Matching</h3>
+                        <p style="margin-bottom: 20px; font-size: 18px;">Run in containers, fast & deterministic:</p>
+                        <div class="card">
+                            <table style="margin: 0;">
+                                <tbody>
+                                    <tr>
+                                        <td>Exact domain match</td>
+                                        <td><strong style="color: var(--zinc-pink);">High signal</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>LinkedIn URL match</td>
+                                        <td><strong style="color: var(--zinc-pink);">High signal</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fuzzy name similarity</td>
+                                        <td><strong>Medium signal</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Address / phone match</td>
+                                        <td><strong>Supporting signal</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <h3>Blocking Strategy</h3>
+                        <p style="margin-bottom: 20px; font-size: 18px;">Reduces comparison space efficiently:</p>
+                        <div class="card">
+                            <ul>
+                                <li>Group by normalised domain root</li>
+                                <li>Group by name prefix (first 5 chars)</li>
+                                <li>Group by city + industry</li>
+                                <li>Group by LinkedIn company handle</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">7 / 12</div>
+        </div>
+
+        <!-- Slide 8: How Matching Works - Agentic -->
+        <div class="slide">
+            <h2>How Matching Works: <span>Agentic Scoring</span></h2>
+            <div class="content-area">
+                <p style="margin-bottom: 25px; font-size: 20px;">Beyond basic matching — agents conduct research and validation:</p>
+
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>Domain Analysis</h4>
+                        <ul>
+                            <li>Check if domains redirect to each other</li>
+                            <li>Verify website content matches</li>
+                            <li>Detect rebrand signals</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>M&A Research</h4>
+                        <ul>
+                            <li>Search for merger/acquisition news</li>
+                            <li>Confirm parent-child relationships</li>
+                            <li>Identify corporate structure</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Adaptive Enrichment</h4>
+                        <ul>
+                            <li>Request additional data when uncertain</li>
+                            <li>Scrape websites for verification</li>
+                            <li>Cross-reference multiple sources</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card highlight" style="margin-top: 30px;">
+                    <h4 style="color: var(--zinc-pink);">Validation Loop</h4>
+                    <p style="font-size: 18px; color: var(--zinc-dark);">
+                        The Validator agent reviews the Scorer's assessment. If confidence is borderline or evidence is conflicting,
+                        it can trigger re-enrichment or escalate to human review with specific questions.
+                    </p>
+                </div>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">8 / 12</div>
+        </div>
+
+        <!-- Slide 9: Confidence Thresholds -->
+        <div class="slide">
+            <h2><span>Confidence</span> Thresholds</h2>
+            <div class="content-area" style="max-width: 900px; margin: 0 auto;">
+                <div class="threshold-card" style="border-left: 4px solid var(--zinc-blue);">
+                    <div class="score" style="color: var(--zinc-blue);">≥98%</div>
+                    <div>
+                        <div class="action">Auto-merge eligible</div>
+                        <div class="desc">After passing validation rules (protected record checks)</div>
+                    </div>
+                </div>
+
+                <div class="threshold-card" style="border-left: 4px solid #cc8800;">
+                    <div class="score" style="color: #cc8800;">85-97%</div>
+                    <div>
+                        <div class="action">Slack review required</div>
+                        <div class="desc">Human decision needed — agent provides context and recommendation</div>
+                    </div>
+                </div>
+
+                <div class="threshold-card" style="border-left: 4px solid var(--zinc-pink);">
+                    <div class="score" style="color: var(--zinc-pink);">70-84%</div>
+                    <div>
+                        <div class="action">Additional enrichment</div>
+                        <div class="desc">Agent requests more data, then re-scores with new context</div>
+                    </div>
+                </div>
+
+                <div class="threshold-card" style="border-left: 4px solid var(--zinc-gray);">
+                    <div class="score" style="color: var(--zinc-gray);">&lt;70%</div>
+                    <div>
+                        <div class="action">Auto-dismiss</div>
+                        <div class="desc">Not a duplicate — logged and excluded from future consideration</div>
+                    </div>
+                </div>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">9 / 12</div>
+        </div>
+
+        <!-- Slide 10: Security & Safety -->
+        <div class="slide">
+            <h2><span>Security</span> & Safety</h2>
+            <div class="content-area">
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>Protected Records</h4>
+                        <p style="font-size: 16px; margin-bottom: 15px;">NEVER auto-merged:</p>
+                        <ul>
+                            <li>Customer records</li>
+                            <li>In-pipeline deals</li>
+                            <li>Partner accounts</li>
+                        </ul>
+                        <p style="font-size: 14px; margin-top: 15px; color: var(--zinc-gray);">
+                            Protected records always require human review
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h4>Rollback Capability</h4>
+                        <ul>
+                            <li>Pre-merge snapshots of all records</li>
+                            <li>All associations captured</li>
+                            <li>Full restore within minutes</li>
+                            <li>Complete audit trail</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Infrastructure</h4>
+                        <ul>
+                            <li>Cloudflare Workers for rate limiting</li>
+                            <li>Separate read/write API access</li>
+                            <li>Anomaly detection</li>
+                            <li>Emergency stop triggers</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card highlight" style="margin-top: 30px;">
+                    <h4 style="color: var(--zinc-pink);">Test Environment First</h4>
+                    <p style="font-size: 18px; color: var(--zinc-dark);">
+                        Before production rollout, we create a test environment that mirrors HubSpot functionality with
+                        representative endpoints and data. All agents are validated against this sandbox before touching live data.
+                    </p>
+                </div>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">10 / 12</div>
+        </div>
+
+        <!-- Slide 11: Slack Integration -->
+        <div class="slide">
+            <h2><span>Slack</span> Human Review</h2>
+            <div class="content-area" style="align-items: center;">
+                <div class="slack-mockup">
+                    <div class="slack-header">
+                        <div class="slack-icon">🔍</div>
+                        <div class="slack-title">Potential Duplicate Detected</div>
+                        <div class="slack-confidence">87% confidence</div>
+                    </div>
+                    <div class="slack-records">
+                        <div class="slack-record">
+                            <h5>Record A: Acme Corp Ltd</h5>
+                            <p>Domain: acme.co.uk</p>
+                            <p>Status: Prospect</p>
+                            <p>Contacts: 5 | Deals: 0</p>
+                        </div>
+                        <div class="slack-record">
+                            <h5>Record B: ACME Corporation</h5>
+                            <p>Domain: acmecorp.com</p>
+                            <p>Status: Customer</p>
+                            <p>Contacts: 12 | Deals: 3</p>
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; margin-bottom: 15px; color: #aaa;">
+                        <strong style="color: #fff;">Why flagged:</strong> Fuzzy name match (92%), different domains, agent found both domains redirect to same site
+                    </p>
+                    <div class="slack-buttons">
+                        <button class="slack-btn primary">✓ Merge A→B</button>
+                        <button class="slack-btn secondary">✗ Not a Duplicate</button>
+                        <button class="slack-btn secondary">🔗 Parent/Child</button>
+                        <button class="slack-btn secondary">🔍 Investigate</button>
+                    </div>
+                </div>
+
+                <p style="margin-top: 20px; font-size: 18px; text-align: center; color: var(--zinc-gray);">
+                    Every human decision feeds back into the learning corpus to improve future accuracy
+                </p>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">11 / 12</div>
+        </div>
+
+        <!-- Slide 12: Next Steps -->
+        <div class="slide">
+            <h2><span>Next</span> Steps</h2>
+            <div class="content-area">
+                <div class="two-col">
+                    <div>
+                        <h3>Requirements</h3>
+                        <ul class="checklist">
+                            <li>
+                                <span class="check">□</span>
+                                <span>HubSpot API access (read + write apps)</span>
+                            </li>
+                            <li>
+                                <span class="check">□</span>
+                                <span>Slack workspace for #dedupe-review</span>
+                            </li>
+                            <li>
+                                <span class="check">□</span>
+                                <span>RevOps availability for human reviews</span>
+                            </li>
+                            <li>
+                                <span class="check">□</span>
+                                <span>Known duplicate examples for testing</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Discussion Points</h3>
+                        <ul class="checklist">
+                            <li>
+                                <span class="check">□</span>
+                                <span>Protected record definitions</span>
+                            </li>
+                            <li>
+                                <span class="check">□</span>
+                                <span>Confidence threshold tuning</span>
+                            </li>
+                            <li>
+                                <span class="check">□</span>
+                                <span>Integration priorities (Gong, Outreach, etc.)</span>
+                            </li>
+                            <li>
+                                <span class="check">□</span>
+                                <span>Timeline and phasing</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 40px; text-align: center; max-width: 700px; margin-left: auto; margin-right: auto;">
+                    <p style="font-size: 22px; color: var(--zinc-dark);">
+                        <strong>Goal:</strong> Approval to proceed with test environment setup and agent development
+                    </p>
+                </div>
+            </div>
+            <div class="logo">Zinc</div>
+            <div class="slide-number">12 / 12</div>
+        </div>
+    </div>
+
+    <div class="nav-hint">Use ← → arrow keys or click to navigate</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const progress = document.getElementById('progress');
+        let currentSlide = 0;
+
+        function showSlide(n) {
+            slides.forEach(s => s.classList.remove('active'));
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            progress.style.width = ((currentSlide + 1) / slides.length * 100) + '%';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                showSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft') {
+                showSlide(currentSlide - 1);
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) {
+                showSlide(currentSlide + 1);
+            } else {
+                showSlide(currentSlide - 1);
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
